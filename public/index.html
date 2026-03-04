@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send Message</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f4f4f5;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: min(420px, 92vw);
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      display: grid;
+      gap: 12px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+    }
+    input, textarea, button {
+      font: inherit;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d4d4d8;
+    }
+    textarea { min-height: 140px; resize: vertical; }
+    button {
+      background: #18181b;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .status { min-height: 1.2em; font-size: .95rem; }
+  </style>
+</head>
+<body>
+  <form id="contactForm">
+    <h1>Send me a message</h1>
+    <input name="name" type="text" placeholder="Your name" required />
+    <input name="email" type="email" placeholder="Your email" required />
+    <textarea name="message" placeholder="Your message" required></textarea>
+    <button type="submit">Send</button>
+    <div class="status" id="status"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const statusEl = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Sending...';
+
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const res = await fetch('/api/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok || !result.ok) {
+          throw new Error(result.error || 'Failed');
+        }
+
+        statusEl.textContent = 'Message sent ✅';
+        form.reset();
+      } catch (err) {
+        statusEl.textContent = err.message || 'Could not send message.';
+      }
+    });
+  </script>
+</body>
+</html>
