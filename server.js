@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/send', async (req, res) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, email, phone, message } = req.body;
 
     if (!name || !email || !message) {
       return res.status(400).json({ ok: false, error: 'All fields are required.' });
@@ -32,11 +32,12 @@ app.post('/api/send', async (req, res) => {
       to: process.env.TO_EMAIL,
       replyTo: email,
       subject: `New message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      text: `Name: ${name}\nEmail: ${email}\n${phone ? `Phone: ${phone}\n` : ''}\nMessage:\n${message}`,
       html: `
         <h3>New Message</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
+        ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
         <p><strong>Message:</strong><br>${String(message).replace(/\n/g, '<br>')}</p>
       `,
     });
